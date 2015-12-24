@@ -100,7 +100,7 @@ class PersonRelation extends Relationship[PersonRelation, Person] {
 Prerequisite to making Neo4j requests is REST endpoint definition. This is achived using RestConnection class.
 
 ```
-scala> implicit val service = RestConnection("localhost", 7474)
+scala> implicit val service = RestConnection("localhost", 7474, "neo4j", "neo4j")
 service: RestConnection
 ```
 
