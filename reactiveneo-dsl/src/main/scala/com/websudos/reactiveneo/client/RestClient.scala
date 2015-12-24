@@ -21,8 +21,10 @@ import com.twitter.finagle.{Http, Service}
 import com.twitter.util
 import com.twitter.util.{Duration, Future, JavaTimer, Timer}
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.jboss.netty.buffer.ChannelBuffers
+import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
 import org.jboss.netty.handler.codec.http._
+import org.jboss.netty.util.CharsetUtil
+import org.jboss.netty.handler.codec.base64.Base64
 
 import scala.concurrent.Promise
 import scala.concurrent.duration.FiniteDuration
@@ -56,9 +58,15 @@ class RestClient(config: ClientConfiguration) extends StrictLogging {
     content.foreach { body =>
       request.setContent(ChannelBuffers.copiedBuffer(body, Charset.forName("UTF-8")))
     }
+
+    val authString = config.username + ":" + config.password
+    val authChannelBuffer = ChannelBuffers.copiedBuffer(authString, CharsetUtil.UTF_8)
+    val encodedAuthChannelBuffer = Base64.encode(authChannelBuffer)
+
     request.headers()
-      .add("Content-Type", "application/json")
-      .add("Host",config.server)
+      .add(HttpHeaders.Names.CONTENT_TYPE, "application/json")
+      .add(HttpHeaders.Names.HOST, config.server + ":" + config.port + "/" + config.path.stripPrefix("/"))
+      .add(HttpHeaders.Names.AUTHORIZATION, "Basic " + encodedAuthChannelBuffer.toString(CharsetUtil.UTF_8))
 
     val response: util.Future[HttpResponse] = client(request)
     response onSuccess { resp: HttpResponse =>
@@ -101,4 +109,4 @@ class DummyParser extends ResultParser[HttpResponse] {
 }
 
 
-case class ClientConfiguration(server: String, port: Int, defaultTimeout: FiniteDuration)
+case class ClientConfiguration(server: String, port: Int, path: String, username: String, password: String, defaultTimeout: FiniteDuration)

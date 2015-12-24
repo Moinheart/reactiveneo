@@ -58,11 +58,11 @@ class RestCall[RT](endpoint: RestEndpoint, content: Option[String], resultParser
 
 object RestCall {
 
-  def apply[RT](endpoint: RestEndpoint, resultParser: Reads[RT], query: String)(implicit client: RestClient) = {
+  def apply[RT](endpoint: RestEndpoint, resultParser: Reads[RT], query: String)(implicit client: RestClient): RestCall[RT] = {
     new RestCall[RT](endpoint, Some(query), resultParser)
   }
 
-  def apply[RT](endpoint: RestEndpoint, resultParser: Reads[RT])(implicit client: RestClient) = {
+  def apply[RT](endpoint: RestEndpoint, resultParser: Reads[RT])(implicit client: RestClient): RestCall[RT] = {
     new RestCall[RT](endpoint, None, resultParser)
   }
 }
@@ -74,7 +74,7 @@ class RestConnection(config: ClientConfiguration) {
 
   implicit def client: RestClient = new RestClient(config)
 
-  def neoStatement( cypher: String ) =
+  def neoStatement( cypher: String ): String =
     s"""{
         |  "statements" : [ {
         |    "statement" : "$cypher"
@@ -99,8 +99,8 @@ class RestConnection(config: ClientConfiguration) {
 
 object RestConnection {
 
-  def apply(host: String, port: Int): RestConnection = {
-    val config = ClientConfiguration(host, port, FiniteDuration(10, TimeUnit.SECONDS))
+  def apply(host: String, port: Int, path: String, username: String, password: String): RestConnection = {
+    val config = ClientConfiguration(host, port, path, username, password, FiniteDuration(10, TimeUnit.SECONDS))
     new RestConnection(config)
   }
 
