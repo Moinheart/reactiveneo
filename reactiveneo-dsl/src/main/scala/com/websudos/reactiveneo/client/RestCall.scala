@@ -95,12 +95,16 @@ class RestConnection(config: ClientConfiguration) {
     call
   }
 
+  def makeCreateRequest(cypher: String) = {
+    client.makeCreateRequest(SingleTransaction.path, SingleTransaction.method, Some(cypher))
+  }
+
 }
 
 object RestConnection {
 
-  def apply(host: String, port: Int, path: String, username: String, password: String): RestConnection = {
-    val config = ClientConfiguration(host, port, path, username, password, FiniteDuration(10, TimeUnit.SECONDS))
+  def apply(host: String, port: Int, username: String, password: String): RestConnection = {
+    val config = ClientConfiguration(host, port, username, password, FiniteDuration(10, TimeUnit.SECONDS))
     new RestConnection(config)
   }
 

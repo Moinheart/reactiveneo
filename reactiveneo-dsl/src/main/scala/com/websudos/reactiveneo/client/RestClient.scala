@@ -65,7 +65,7 @@ class RestClient(config: ClientConfiguration) extends StrictLogging {
 
     request.headers()
       .add(HttpHeaders.Names.CONTENT_TYPE, "application/json")
-      .add(HttpHeaders.Names.HOST, config.server + ":" + config.port + "/" + config.path.stripPrefix("/"))
+      .add(HttpHeaders.Names.HOST, config.server + ":" + config.port + "/db/data/")
       .add(HttpHeaders.Names.AUTHORIZATION, "Basic " + encodedAuthChannelBuffer.toString(CharsetUtil.UTF_8))
 
     val response: util.Future[HttpResponse] = client(request)
@@ -81,6 +81,25 @@ class RestClient(config: ClientConfiguration) extends StrictLogging {
     res.onSuccess(promise.success(_))
     res.onFailure(promise.failure(_))
     promise.future
+  }
+
+
+  def makeCreateRequest(path: String, method: HttpMethod = HttpMethod.GET, content: Option[String] = None) = {
+    val request =  new DefaultHttpRequest(HttpVersion.HTTP_1_1, method, path)
+    content.foreach { body =>
+      request.setContent(ChannelBuffers.copiedBuffer(body, Charset.forName("UTF-8")))
+    }
+
+    val authString = config.username + ":" + config.password
+    val authChannelBuffer = ChannelBuffers.copiedBuffer(authString, CharsetUtil.UTF_8)
+    val encodedAuthChannelBuffer = Base64.encode(authChannelBuffer)
+
+    request.headers()
+      .add(HttpHeaders.Names.CONTENT_TYPE, "application/json")
+      .add(HttpHeaders.Names.HOST, config.server + ":" + config.port + "/db/data/")
+      .add(HttpHeaders.Names.AUTHORIZATION, "Basic " + encodedAuthChannelBuffer.toString(CharsetUtil.UTF_8))
+
+    client(request)
   }
 
 }
@@ -109,4 +128,4 @@ class DummyParser extends ResultParser[HttpResponse] {
 }
 
 
-case class ClientConfiguration(server: String, port: Int, path: String, username: String, password: String, defaultTimeout: FiniteDuration)
+case class ClientConfiguration(server: String, port: Int, username: String, password: String, defaultTimeout: FiniteDuration)
