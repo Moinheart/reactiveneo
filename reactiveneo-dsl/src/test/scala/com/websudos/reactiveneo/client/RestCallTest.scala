@@ -38,7 +38,7 @@ class RestCallTest extends FlatSpec with Matchers with ServerMockSugar with Scal
         |  "errors" : [ ]
         |}
       """.stripMargin, addr => {
-        val configuration = ClientConfiguration("localhost", 7474, "/db/data/", "neo4j", "password", 1 second)
+        val configuration = ClientConfiguration("localhost", 7474, "neo4j", "password", 1 second)
         implicit val client = new RestClient(configuration)
 
         val call = RestCall(SingleTransaction, retEx.resultParser, "create (tn: TestNode) return tn")

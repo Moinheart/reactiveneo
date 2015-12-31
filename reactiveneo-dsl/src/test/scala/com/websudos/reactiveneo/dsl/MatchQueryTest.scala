@@ -18,7 +18,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class MatchQueryTest extends FlatSpec with Matchers {
 
-  implicit val context: QueryBuilderContext = new QueryBuilderContext
+  implicit val context: CypherBuilderContext = new CypherBuilderContext
 
   it should "build a simple query with a predicate" in {
     TestNode(_.name := "Tom").returns { case n ~~ _ => n}.query shouldEqual

@@ -20,7 +20,7 @@ class PatternTest extends FlatSpec with Matchers {
 
 
   it should "serialize a simple pattern" in {
-    implicit val context:QueryBuilderContext = new QueryBuilderContext
+    implicit val context:CypherBuilderContext = new CypherBuilderContext
     val node = TestNode()
     val relation = PatternLink(Start, node)
     val nodeLabel = context.nextLabel(node.owner)
@@ -30,7 +30,7 @@ class PatternTest extends FlatSpec with Matchers {
 
 
   it should "serialize a pattern with direction functions" in {
-    implicit val context:QueryBuilderContext = new QueryBuilderContext
+    implicit val context:CypherBuilderContext = new CypherBuilderContext
     val node = TestNode()
     val rel = TestRelationship()
     val node1 = TestNode( tn => Predicate(tn.name, "Mark"))
@@ -44,7 +44,7 @@ class PatternTest extends FlatSpec with Matchers {
   }
 
   it should "serialize a pattern with direction functions even more elaborate example" in {
-    implicit val context:QueryBuilderContext = new QueryBuilderContext
+    implicit val context:CypherBuilderContext = new CypherBuilderContext
     val node1 = TestNode()
     val rel1 = TestRelationship()
     val node2 = TestNode( _.name := "Mark")

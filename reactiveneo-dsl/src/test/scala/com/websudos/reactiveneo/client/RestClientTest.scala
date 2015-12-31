@@ -27,7 +27,7 @@ import scala.concurrent.duration.FiniteDuration
 class RestClientTest extends FlatSpec with Matchers with ScalaFutures with IntegrationPatience {
 
   it should "execute a request" taggedAs RequiresNeo4jServer in {
-    val client = new RestClient(ClientConfiguration("localhost", 7474, "/db/data/", "neo4j", "password", FiniteDuration(10, TimeUnit.SECONDS)))
+    val client = new RestClient(ClientConfiguration("localhost", 7474, "neo4j", "password", FiniteDuration(10, TimeUnit.SECONDS)))
     val result = client.makeRequest("/")
     whenReady(result) { res =>
       res.getStatus.getCode should equal(200)

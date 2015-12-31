@@ -29,7 +29,7 @@ abstract class ReturnExpression[R] {
    * Builds part of the query string corresponding to this expression.
    * @return Returns the built query.
    */
-  def query(context: QueryBuilderContext): BuiltQuery
+  def query(context: CypherBuilderContext): BuiltQuery
 
   /**
    * Builds result parser for this expression. This is not a full parser but [[play.api.libs.json.Reads]]
@@ -49,7 +49,7 @@ abstract class ReturnExpression[R] {
 case class ObjectReturnExpression[GO <: GraphObject[GO, R], R](go: GraphObject[GO, R]) extends ReturnExpression[R] {
 
 
-  override def query(context: QueryBuilderContext): BuiltQuery = {
+  override def query(context: CypherBuilderContext): BuiltQuery = {
     context.resolve(go)
   }
 
@@ -70,7 +70,7 @@ case class AttributeReturnExpression[GO <: GraphObject[GO, R], R, T](
     attribute: Attribute[GO, R, T])(implicit reads: Reads[T]) extends ReturnExpression[T] {
 
 
-  override def query(context: QueryBuilderContext): BuiltQuery = {
+  override def query(context: CypherBuilderContext): BuiltQuery = {
     context.resolve(attribute.owner.asInstanceOf[GraphObject[_,_]]) + CypherOperators.DOT + attribute.name
   }
 

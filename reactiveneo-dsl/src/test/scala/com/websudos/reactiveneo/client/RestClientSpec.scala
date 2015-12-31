@@ -38,7 +38,7 @@ class RestClientSpec extends FeatureSpec with GivenWhenThen with Matchers
 
     scenario("send a simple MATCH query", RequiresNeo4jServer) {
       Given("started Neo4j server")
-      implicit val service = RestConnection("localhost", 7474, "/db/data/", "neo4j", "password")
+      implicit val service = RestConnection("localhost", 7474, "neo4j", "password")
       val query: MatchQuery[_, _, _, _, _, TestNodeRecord] = TestNode().returns { case go ~~ _ => go }
 
       When("REST call is executed")
@@ -52,7 +52,7 @@ class RestClientSpec extends FeatureSpec with GivenWhenThen with Matchers
     }
       scenario("send a query and use a custom parser to get the result", RequiresNeo4jServer) {
       Given("started Neo4j server")
-      val service = RestConnection("localhost", 7474, "/db/data/", "neo4j", "password")
+      val service = RestConnection("localhost", 7474, "neo4j", "password")
       val query = "CREATE (n) RETURN id(n)"
       implicit val parsRester: Reads[InsertResult] = __.read[Int].map { arr =>
         InsertResult(arr)
@@ -70,7 +70,7 @@ class RestClientSpec extends FeatureSpec with GivenWhenThen with Matchers
 
     scenario("create a Person node and load it", RequiresNeo4jServer) {
       Given("started Neo4j server")
-      val service = RestConnection("localhost", 7474, "/db/data/", "neo4j", "password")
+      val service = RestConnection("localhost", 7474, "neo4j", "password")
       val query = "CREATE (p: Person { name: 'Mike', age: 10 }) RETURN p"
       implicit val parser: Reads[Person] = ((__ \ "name").read[String] and (__ \ "age").read[Int])(Person)
 

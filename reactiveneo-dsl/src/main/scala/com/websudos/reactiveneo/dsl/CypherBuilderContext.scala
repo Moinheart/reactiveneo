@@ -17,7 +17,7 @@ package com.websudos.reactiveneo.dsl
 /**
  * Context encapsulates available aliases used for query construction.
  */
-class QueryBuilderContext {
+class CypherBuilderContext {
 
   private var labels: IndexedSeq[String] = ('a' to 'z').map(_.toString)
 

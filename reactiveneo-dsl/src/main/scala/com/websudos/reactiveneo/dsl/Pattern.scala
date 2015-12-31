@@ -44,7 +44,7 @@ object Start extends Direction {
  */
 sealed trait Pattern {
 
-  def queryClause( context: QueryBuilderContext ): String
+  def queryClause( context: CypherBuilderContext ): String
 
   /**
    * Iterates all nodes and relationships objects in the pattern.
@@ -70,7 +70,7 @@ final case class PatternLink[GO <: GraphObject[GO, _], PC <: Pattern]( dir: Dire
                                                                        next: PC = PNil )
   extends Pattern {
 
-  def queryClause( context: QueryBuilderContext ): String = {
+  def queryClause( context: CypherBuilderContext ): String = {
     s"${node.queryClause(context)} $dir ${next.queryClause(context)}"
   }
 
@@ -93,7 +93,7 @@ final case class PatternLink[GO <: GraphObject[GO, _], PC <: Pattern]( dir: Dire
 sealed trait PNil extends Pattern
 
 case object PNil extends PNil {
-  override def queryClause( context: QueryBuilderContext ): String = ""
+  override def queryClause( context: CypherBuilderContext ): String = ""
 }
 
 object ~~ {

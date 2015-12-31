@@ -38,7 +38,7 @@ trait ImplicitConversions {
    * @return Returns query object.
    */
   implicit def patternToQuery[P <: Pattern](p: P): MatchQuery[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _] = {
-    MatchQuery.createRootQuery(p, new QueryBuilderContext)
+    MatchQuery.createRootQuery(p, new CypherBuilderContext)
   }
 
 
@@ -62,7 +62,7 @@ trait ImplicitConversions {
   implicit def selectionToQuery[N <: Node[N,_]](sel: GraphObjectSelection[N]):
   MatchQuery[PatternLink[N,PNil], WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _] = {
     val pattern = new PatternLink[N, PNil](Start, sel)
-    val query = MatchQuery.createRootQuery(pattern, new QueryBuilderContext)
+    val query = MatchQuery.createRootQuery(pattern, new CypherBuilderContext)
     query
   }
 }

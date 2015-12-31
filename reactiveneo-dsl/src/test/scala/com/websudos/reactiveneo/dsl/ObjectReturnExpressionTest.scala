@@ -21,7 +21,7 @@ class ObjectReturnExpressionTest extends FlatSpec with Matchers {
 
   it should "build a query" in {
     val node = new TestNode
-    val context = new QueryBuilderContext
+    val context = new CypherBuilderContext
     context.register(node, "abc")
 
     ObjectReturnExpression[TestNode, TestNodeRecord](node).query(context).queryString shouldEqual "abc"

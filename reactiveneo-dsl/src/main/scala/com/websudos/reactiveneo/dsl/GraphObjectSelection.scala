@@ -36,7 +36,7 @@ private[reactiveneo] case class GraphObjectSelection[Owner <: GraphObject[Owner,
   /**
    * Builds a query string of alias, object name and criteria if some.
    */
-  def queryClause(context: QueryBuilderContext): BuiltQuery = {
+  def queryClause(context: CypherBuilderContext): BuiltQuery = {
     val alias = context.resolve(owner)
     val (open:String, close:String) = this.owner match {
       case _:Relationship[_,_] => "[" -> "]"
