@@ -14,7 +14,7 @@
  */
 package com.websudos.reactiveneo.dsl
 
-import com.websudos.reactiveneo.query.BuiltQuery
+import com.websudos.reactiveneo.query.BuiltStatement
 
 /**
  * Commonly used implicit conversions
@@ -26,7 +26,7 @@ trait ImplicitConversions {
    * @param str String to wrap
    * @return Returns query object.
    */
-  implicit def stringToQuery(str: String): BuiltQuery = BuiltQuery(str)
+  implicit def stringToQuery(str: String): BuiltStatement = BuiltStatement(str)
 
   /**
    * Conversion that simplifies query building. It allows to build the query directly from a pattern.
@@ -38,9 +38,21 @@ trait ImplicitConversions {
    * @return Returns query object.
    */
   implicit def patternToQuery[P <: Pattern](p: P): MatchQuery[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _] = {
-    MatchQuery.createRootQuery(p, new CypherBuilderContext)
+    MatchQuery.createRootMatchQuery(p, new CypherBuilderContext)
   }
 
+  /**
+    * Conversion that simplifies set building. It allows to build the set directly from a pattern.
+    * ```
+    * PersonNode(p=>p.name := "Mark").set(_.id := "111")
+    * ```
+    * @param p Predicate that forms initial node for the query
+    * @tparam P Pattern type.
+    * @return Returns set object.
+    */
+  implicit def patternToSet[P <: Pattern](p: P): MatchSet[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _, _] = {
+    MatchSet.createRootMatchSet(p, new CypherBuilderContext)
+  }
 
   /**
    * Convert single node selection to the [[com.websudos.reactiveneo.dsl.Pattern]] object
@@ -62,7 +74,15 @@ trait ImplicitConversions {
   implicit def selectionToQuery[N <: Node[N,_]](sel: GraphObjectSelection[N]):
   MatchQuery[PatternLink[N,PNil], WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _] = {
     val pattern = new PatternLink[N, PNil](Start, sel)
-    val query = MatchQuery.createRootQuery(pattern, new CypherBuilderContext)
+    val query = MatchQuery.createRootMatchQuery(pattern, new CypherBuilderContext)
     query
   }
+
+  implicit def selectionToSet[N <: Node[N,_]](sel: GraphObjectSelection[N]):
+  MatchSet[PatternLink[N,PNil], WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _, _] = {
+    val pattern = new PatternLink[N, PNil](Start, sel)
+    val query = MatchSet.createRootMatchSet(pattern, new CypherBuilderContext)
+    query
+  }
+
 }

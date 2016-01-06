@@ -17,32 +17,31 @@ package com.websudos.reactiveneo.query
 /**
  * Expanded match query that is enriched with every DSL query function call.
  */
-case class BuiltQuery(queryString: String) {
+case class BuiltStatement(statement: String) {
 
   def this() = this("")
 
+  def wrap(str: String,open: String = "(", close: String = ")"): BuiltStatement = pad.append(open).append(str).append(close)
+  def wrap(query: BuiltStatement): BuiltStatement = wrap(query.statement)
+  def wrapped(open: String = "(", close: String = ")"): BuiltStatement = BuiltStatement(s"$open$statement$close")
 
-  def wrap(str: String,open: String = "(", close: String = ")"): BuiltQuery = pad.append(open).append(str).append(close)
-  def wrap(query: BuiltQuery): BuiltQuery = wrap(query.queryString)
-  def wrapped(open: String = "(", close: String = ")"): BuiltQuery = BuiltQuery(s"$open$queryString$close")
+  def append(str: String): BuiltStatement = new BuiltStatement(statement + str)
+  def append(query: BuiltStatement): BuiltStatement = new BuiltStatement(statement + query.statement)
+  def append[T](value: T)(implicit formatter: ValueFormatter[T]): BuiltStatement = append(formatter.format(value))
 
-  def append(str: String): BuiltQuery = new BuiltQuery(queryString + str)
-  def append(query: BuiltQuery): BuiltQuery = new BuiltQuery(queryString + query.queryString)
-  def append[T](value: T)(implicit formatter: ValueFormatter[T]): BuiltQuery = append(formatter.format(value))
+  def appendSpaced(str: String): BuiltStatement = appendSpaced(new BuiltStatement(str))
+  def appendSpaced(query: BuiltStatement): BuiltStatement = (if(spaced) this else append(" ")).append(query).append(" ")
+  def appendSpaced[T](value: T)(implicit formatter: ValueFormatter[T]): BuiltStatement =
+    appendSpaced(new BuiltStatement(formatter.format(value)))
 
-  def appendSpaced(str: String): BuiltQuery = appendSpaced(new BuiltQuery(str))
-  def appendSpaced(query: BuiltQuery): BuiltQuery = (if(spaced) this else append(" ")).append(query).append(" ")
-  def appendSpaced[T](value: T)(implicit formatter: ValueFormatter[T]): BuiltQuery =
-    appendSpaced(new BuiltQuery(formatter.format(value)))
+  def space: BuiltStatement = append(" ")
 
-  def space: BuiltQuery = append(" ")
+  def spaced: Boolean = statement.endsWith(" ")
+  def pad: BuiltStatement = if (spaced) this else BuiltStatement(statement + " ")
+  def forcePad: BuiltStatement = BuiltStatement(statement + " ")
+  def trim: BuiltStatement = BuiltStatement(statement.trim)
 
-  def spaced: Boolean = queryString.endsWith(" ")
-  def pad: BuiltQuery = if (spaced) this else BuiltQuery(queryString + " ")
-  def forcePad: BuiltQuery = BuiltQuery(queryString + " ")
-  def trim: BuiltQuery = BuiltQuery(queryString.trim)
-
-  override def toString: String = queryString
+  override def toString: String = statement
 }
 
 /**

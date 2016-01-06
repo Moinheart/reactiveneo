@@ -15,7 +15,7 @@
 package com.websudos.reactiveneo.dsl
 
 import com.websudos.reactiveneo.client.RestConnection
-import com.websudos.reactiveneo.query.BuiltQuery
+import com.websudos.reactiveneo.query.BuiltStatement
 import com.websudos.reactiveneo.query.CypherKeywords._
 
 import scala.annotation.implicitNotFound
@@ -56,11 +56,11 @@ private[reactiveneo] abstract class LimitUnbound extends LimitBind
  */
 private[reactiveneo] class CypherBuilder[P <: Pattern, WB <: WhereBind, RB <: ReturnBind, OB <: OrderBind, LB <: LimitBind, RT](
                                                                                                                                  pattern: P,
-                                                                                                                                 builtQuery: BuiltQuery,
+                                                                                                                                 builtQuery: BuiltStatement,
                                                                                                                                  context: CypherBuilderContext,
                                                                                                                                  ret: Option[ReturnExpression[RT]] = None) {
 
-  def where(qb: BuiltQuery, criteria: BuiltQuery) = {
+  def where(qb: BuiltStatement, criteria: BuiltStatement) = {
     qb.appendSpaced(WHERE).append(criteria)
   }
 
@@ -78,7 +78,7 @@ private[reactiveneo] class CypherBuilder[P <: Pattern, WB <: WhereBind, RB <: Re
     */
   @implicitNotFound("You need to add return clause to capture the type of result")
   final def finalCypher: (String, ReturnExpression[RT]) = {
-    (builtQuery.queryString, ret.get)
+    (builtQuery.statement, ret.get)
   }
 
   /**

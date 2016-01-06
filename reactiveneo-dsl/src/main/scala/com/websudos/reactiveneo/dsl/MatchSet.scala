@@ -1,39 +1,56 @@
 package com.websudos.reactiveneo.dsl
 
-import com.websudos.reactiveneo.query.{CypherKeywords, BuiltQuery}
+import com.websudos.reactiveneo.query.{CypherKeywords, BuiltStatement}
 
 /**
   * Created by w00292111 on 2015/12/31.
   */
-class MatchSet [P <: Pattern, WB <: WhereBind, RB <: ReturnBind, OB <: OrderBind, LB <: LimitBind, RT](
-    pattern: P,
-    builtQuery: BuiltQuery,
-    context: CypherBuilderContext,
-    //set: Option[SetPattern] = None,
-    ret: Option[ReturnExpression[RT]] = None) extends CypherBuilder(pattern, builtQuery, context, ret) {
+class MatchSet [P <: Pattern, WB <: WhereBind, RB <: ReturnBind, OB <: OrderBind, LB <: LimitBind, S, RT](
+                                                                                                           pattern: P,
+                                                                                                           builtStatement: BuiltStatement,
+                                                                                                           context: CypherBuilderContext,
+                                                                                                           ret: Option[ReturnExpression[RT]] = None) extends CypherBuilder(pattern, builtStatement, context, ret) {
 
-  def query: String = builtQuery.queryString
+  def statement: String = builtStatement.statement
 
-  //final def set()
-
-  final def returns[URT](ret: P => ReturnExpression[URT]): MatchSet[P, WB, ReturnBound, OB, LB, URT] = {
-    new MatchSet[P, WB, ReturnBound, OB, LB, URT](
+  final def set[US](s: P => SetExpression[US]): MatchSet[P, WB, ReturnBound, OB, LB, US, RT] = {
+    new MatchSet[P, WB, ReturnBound, OB, LB, US, RT](
       pattern,
-      builtQuery.appendSpaced(CypherKeywords.RETURN).appendSpaced(ret(pattern).query(context)),
+      builtStatement.appendSpaced(CypherKeywords.SET).appendSpaced(s(pattern).set(context)),
       context,
-      Some(ret(pattern)))
+      ret
+    )
   }
 
+/*  final def set[US, GO <: GraphObject[GO, _]](goSelection: GraphObjectSelection[GO])
+                                               (implicit m: Manifest[GO]): MatchSet[P, WB, ReturnBound, OB, LB, US, RT] = {
+    val obj = m.runtimeClass.newInstance().asInstanceOf[GO]
+    new MatchSet[P, WB, ReturnBound, OB, LB, US, RT](
+      pattern,
+      builtStatement.appendSpaced(CypherKeywords.SET).appendSpaced(goSelection.setClauseString(context)),
+      context,
+      ret
+    )
+  }*/
+
+/*  @inline
+  private def predicatesSet(predicates: Predicate[_]*): Option[BuiltStatement] = {
+    if(predicates.nonEmpty) {
+      Some(predicates.tail.foldLeft(predicates.head.equalClause)((agg, next) => agg.append(",").append(next.equalClause)))
+    } else {
+      None
+    }
+  }*/
 }
 
 private[reactiveneo] object MatchSet {
 
-  def createRootQuery[P <: Pattern](
+  def createRootMatchSet[P <: Pattern](
      pattern: P,
-     context: CypherBuilderContext): MatchSet[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _] = {
+     context: CypherBuilderContext): MatchSet[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _, _] = {
     pattern.foreach(context.nextLabel(_))
-    val query = new BuiltQuery(CypherKeywords.MATCH).appendSpaced(pattern.queryClause(context))
-    new MatchSet[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, Any](
+    val query = new BuiltStatement(CypherKeywords.MATCH).appendSpaced(pattern.queryClause(context))
+    new MatchSet[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, Any, Any](
       pattern,
       query,
       context)

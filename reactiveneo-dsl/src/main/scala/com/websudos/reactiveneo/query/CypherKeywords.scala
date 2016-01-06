@@ -25,6 +25,8 @@ object CypherKeywords {
 
   val RETURN: String = "RETURN"
 
+  val SET: String = "SET"
+
 }
 
 object CypherOperators {

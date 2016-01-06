@@ -14,8 +14,8 @@
  */
 package com.websudos.reactiveneo.dsl
 
-import com.websudos.reactiveneo.attribute.AbstractAttribute
-import com.websudos.reactiveneo.query.{ValueFormatter, CypherOperators, BuiltQuery}
+import com.websudos.reactiveneo.attribute._
+import com.websudos.reactiveneo.query.{ValueFormatter, CypherOperators, BuiltStatement}
 
 /**
  * Criteria applied to a graph object. Cypher representation of a pattern is ```(n: Label { name = "Mark" })```
@@ -25,30 +25,54 @@ private[reactiveneo] case class GraphObjectSelection[Owner <: GraphObject[Owner,
    predicates: Predicate[_]*) {
 
   @inline
-  private def predicatesQuery: Option[BuiltQuery] = {
+  private def predicatesQuery: Option[BuiltStatement] = {
     if(predicates.nonEmpty) {
-      Some(predicates.tail.foldLeft(predicates.head.clause)((agg, next) => agg.append(",").append(next.clause)))
+      Some(predicates.tail.foldLeft(predicates.head.colonClause)((agg, next) => agg.append(",").append(next.colonClause)))
     } else {
       None
     }
   }
 
+/*  /*@TODO to refactor*/
+  @inline
+  private def predicatesSet(context: CypherBuilderContext): Option[BuiltStatement] = {
+    if(predicates.nonEmpty) {
+      Some(predicates.tail.foldLeft(predicates.head.equalClause(vonyrcy)) {
+        (agg, next) =>
+          agg.append(",").append(context.resolve(next.attribute.asInstanceOf[Attribute[Owner, _ , _]].owner.asInstanceOf[GraphObject[_, _]]) + CypherOperators.DOT + next.equalClause)
+      })
+    } else {
+      None
+    }
+  }*/
+
+
+/*  def setClause(context: CypherBuilderContext): BuiltStatement = {
+    val alias = context.resolve(owner)
+    BuiltStatement(s"$alias:${owner.objectName}")
+      .append(predicatesSet.map(" {" + _.statement + "}").getOrElse(""))
+  }*/
+
+/*  def setClauseString(context: CypherBuilderContext): String = {
+    predicatesSet(context).map(_.statement).get
+  }*/
+
   /**
    * Builds a query string of alias, object name and criteria if some.
    */
-  def queryClause(context: CypherBuilderContext): BuiltQuery = {
+  def queryClause(context: CypherBuilderContext): BuiltStatement = {
     val alias = context.resolve(owner)
     val (open:String, close:String) = this.owner match {
       case _:Relationship[_,_] => "[" -> "]"
       case _                   => "(" -> ")"
     }
-    BuiltQuery(s"$alias:${owner.objectName}")
-      .append(predicatesQuery.map(" {" + _.queryString + "}").getOrElse(""))
+    BuiltStatement(s"$alias:${owner.objectName}")
+      .append(predicatesQuery.map(" {" + _.statement + "}").getOrElse(""))
       .wrapped(open, close)
   }
 
   override def toString: String = {
-    owner.objectName + predicatesQuery.map(" {" + _.queryString + "}")
+    owner.objectName + predicatesQuery.map(" {" + _.statement + "}")
   }
 }
 
@@ -60,12 +84,17 @@ private[reactiveneo] case class GraphObjectSelection[Owner <: GraphObject[Owner,
 private[reactiveneo] case class Predicate[T](
   attribute: AbstractAttribute[T], value: T)(implicit formatter: ValueFormatter[T]) {
 
-  val clause: BuiltQuery = {
+  val colonClause: BuiltStatement = {
     if(value == null)
       throw new IllegalArgumentException("NULL value is not allowed in predicate.")
-    new BuiltQuery(attribute.name).append(CypherOperators.COLON).append(value)
+    new BuiltStatement(attribute.name).append(CypherOperators.COLON).append(value)
   }
 
+  def equalClause(context: CypherBuilderContext): BuiltStatement = {
+    if(value == null)
+      throw new IllegalArgumentException("NULL value is not allowed in predicate.")
+    new BuiltStatement(context.resolve(attribute.asInstanceOf[Attribute[_, _ , _]].owner.asInstanceOf[GraphObject[_, _]]) + CypherOperators.DOT + attribute.name).append(CypherOperators.EQ).append(value)
+  }
 }
 
 trait PredicateOps {

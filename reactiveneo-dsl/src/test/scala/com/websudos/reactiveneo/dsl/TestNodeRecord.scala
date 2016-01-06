@@ -17,15 +17,17 @@ package com.websudos.reactiveneo.dsl
 import com.websudos.reactiveneo.attribute.StringAttribute
 import com.websudos.reactiveneo.query.QueryRecord
 
-case class TestNodeRecord(name: String)
+case class TestNodeRecord(name: String, id: String)
 
 
 class TestNode extends Node[TestNode, TestNodeRecord] {
 
   object name extends StringAttribute(this)
 
+  object id extends StringAttribute(this)
+
   override def fromQuery(data: QueryRecord): TestNodeRecord = {
-    TestNodeRecord(name(data).getOrElse(""))
+    TestNodeRecord(name(data).getOrElse(""), id(data).getOrElse(""))
   }
 }
 

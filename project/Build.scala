@@ -27,7 +27,7 @@ object Build extends Build {
   val FinagleZookeeperVersion = "6.24.0"
   val playVersion = "2.3.4"
   val ScalazVersion = "7.1.0"
-  val Neo4jVersion = "2.1.7"
+  val Neo4jVersion = "2.3.0-M02"
 
   val publishSettings : Seq[Def.Setting[_]] = Seq(
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
@@ -72,7 +72,7 @@ object Build extends Build {
   val sharedSettings: Seq[Def.Setting[_]] = Seq(
     organization := "com.websudos",
     version := "0.3.1",
-    scalaVersion := "2.10.5",
+    scalaVersion := "2.11.7",
     crossScalaVersions := Seq("2.10.5", "2.11.6"),
     resolvers ++= Seq(
       "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",

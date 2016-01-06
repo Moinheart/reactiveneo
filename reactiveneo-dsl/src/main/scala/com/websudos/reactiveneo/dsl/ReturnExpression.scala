@@ -15,7 +15,7 @@
 package com.websudos.reactiveneo.dsl
 
 import com.websudos.reactiveneo.attribute.Attribute
-import com.websudos.reactiveneo.query.{QueryRecord, BuiltQuery, CypherOperators}
+import com.websudos.reactiveneo.query.{QueryRecord, BuiltStatement, CypherOperators}
 import play.api.libs.json.{Reads, _}
 
 /**
@@ -29,7 +29,7 @@ abstract class ReturnExpression[R] {
    * Builds part of the query string corresponding to this expression.
    * @return Returns the built query.
    */
-  def query(context: CypherBuilderContext): BuiltQuery
+  def query(context: CypherBuilderContext): BuiltStatement
 
   /**
    * Builds result parser for this expression. This is not a full parser but [[play.api.libs.json.Reads]]
@@ -49,7 +49,7 @@ abstract class ReturnExpression[R] {
 case class ObjectReturnExpression[GO <: GraphObject[GO, R], R](go: GraphObject[GO, R]) extends ReturnExpression[R] {
 
 
-  override def query(context: CypherBuilderContext): BuiltQuery = {
+  override def query(context: CypherBuilderContext): BuiltStatement = {
     context.resolve(go)
   }
 
@@ -70,7 +70,7 @@ case class AttributeReturnExpression[GO <: GraphObject[GO, R], R, T](
     attribute: Attribute[GO, R, T])(implicit reads: Reads[T]) extends ReturnExpression[T] {
 
 
-  override def query(context: CypherBuilderContext): BuiltQuery = {
+  override def query(context: CypherBuilderContext): BuiltStatement = {
     context.resolve(attribute.owner.asInstanceOf[GraphObject[_,_]]) + CypherOperators.DOT + attribute.name
   }
 
@@ -95,5 +95,4 @@ trait ReturnImplicits {
   implicit def graphObjectToReturnExpression[GO <: GraphObject[GO, R], R](go: GraphObject[GO, R]): ObjectReturnExpression[GO, R] = {
     ObjectReturnExpression(go)
   }
-
 }

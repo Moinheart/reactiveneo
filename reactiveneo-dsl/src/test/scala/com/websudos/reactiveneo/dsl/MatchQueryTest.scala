@@ -21,27 +21,27 @@ class MatchQueryTest extends FlatSpec with Matchers {
   implicit val context: CypherBuilderContext = new CypherBuilderContext
 
   it should "build a simple query with a predicate" in {
-    TestNode(_.name := "Tom").returns { case n ~~ _ => n}.query shouldEqual
+    TestNode(_.name := "Tom").returns { case n ~~ _ => n}.statement shouldEqual
       "MATCH (a:TestNode {name:'Tom'})   RETURN a "
   }
 
   it should "build a simple query with a predicate using conversion" in {
-    TestNode( _.name := "Tom" ).returns { case go ~~ _ => go}.query shouldEqual
+    TestNode( _.name := "Tom" ).returns { case go ~~ _ => go}.statement shouldEqual
       "MATCH (a:TestNode {name:'Tom'})   RETURN a "
   }
 
 
   it should "build a simple query without any predicate" in {
-    TestNode().returns{ case go ~~ _ => go}.query shouldEqual "MATCH (a:TestNode)   RETURN a "
+    TestNode().returns{ case go ~~ _ => go}.statement shouldEqual "MATCH (a:TestNode)   RETURN a "
   }
 
   it should "build a query returning object attribute" in {
-    TestNode().returns{ case go ~~ _ => go.name}.query shouldEqual "MATCH (a:TestNode)   RETURN a.name "
+    TestNode().returns{ case go ~~ _ => go.name}.statement shouldEqual "MATCH (a:TestNode)   RETURN a.name "
   }
 
 
   it should "build a complex pattern query with a predicate using conversion" in {
-    (TestNode( _.name := "Tom" ) :->: TestRelationship() :<-: TestNode()) .returns { case go ~~ _ => go}.query shouldEqual
+    (TestNode( _.name := "Tom" ) :->: TestRelationship() :<-: TestNode()) .returns { case go ~~ _ => go}.statement shouldEqual
       "MATCH (a:TestNode {name:'Tom'}) -> [b:TestRelationship] <- (c:TestNode)   RETURN a "
   }
 

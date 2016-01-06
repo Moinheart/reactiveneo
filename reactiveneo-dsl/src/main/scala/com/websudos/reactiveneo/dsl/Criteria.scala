@@ -15,7 +15,7 @@
 package com.websudos.reactiveneo.dsl
 
 import com.websudos.reactiveneo.attribute.AbstractAttribute
-import com.websudos.reactiveneo.query.{ValueFormatter, BuiltQuery, CypherOperators}
+import com.websudos.reactiveneo.query.{ValueFormatter, BuiltStatement, CypherOperators}
 
 /**
  * Filtering criteria applied to a selected node.
@@ -26,7 +26,7 @@ abstract class Criteria[Owner <: GraphObject[Owner,_]] (val owner: Owner) {
   /**
    * Cypher clause for this criteria.
    */
-  def clause: BuiltQuery
+  def clause: BuiltStatement
 
 }
 
@@ -37,10 +37,10 @@ class EqualsCriteria[Owner <: GraphObject[Owner,_], T] (owner: Owner, attribute:
   /**
    * Cypher clause for this criteria.
    */
-  override val clause: BuiltQuery = {
+  override val clause: BuiltStatement = {
     if(value == null)
       throw new IllegalArgumentException("NULL is not allowed value to compare in equals operator. Use `is null` instead.")
-    new BuiltQuery(attribute.name).appendSpaced(CypherOperators.EQ).append(value)
+    new BuiltStatement(attribute.name).appendSpaced(CypherOperators.EQ).append(value)
   }
 
 }

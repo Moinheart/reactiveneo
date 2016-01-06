@@ -14,7 +14,7 @@
  */
 package com.websudos.reactiveneo.dsl
 
-import com.websudos.reactiveneo.query.{BuiltQuery, CypherKeywords}
+import com.websudos.reactiveneo.query.{BuiltStatement, CypherKeywords}
 
 /**
  * Query builder is responsible for encapsulating nodes information and selection criteria.
@@ -24,11 +24,11 @@ import com.websudos.reactiveneo.query.{BuiltQuery, CypherKeywords}
  */
 private[reactiveneo] class MatchQuery[P <: Pattern, WB <: WhereBind, RB <: ReturnBind, OB <: OrderBind, LB <: LimitBind, RT](
                                                                                                                               pattern: P,
-                                                                                                                              builtQuery: BuiltQuery,
+                                                                                                                              builtQuery: BuiltStatement,
                                                                                                                               context: CypherBuilderContext,
                                                                                                                               ret: Option[ReturnExpression[RT]] = None) extends CypherBuilder(pattern, builtQuery, context, ret) {
 
-  def query: String = builtQuery.queryString
+  def statement: String = builtQuery.statement
 
   final def returns[URT](ret: P => ReturnExpression[URT]): MatchQuery[P, WB, ReturnBound, OB, LB, URT] = {
     new MatchQuery[P, WB, ReturnBound, OB, LB, URT](
@@ -41,11 +41,12 @@ private[reactiveneo] class MatchQuery[P <: Pattern, WB <: WhereBind, RB <: Retur
 
 private[reactiveneo] object MatchQuery {
 
-  def createRootQuery[P <: Pattern](
+  def createRootMatchQuery[P <: Pattern](
     pattern: P,
     context: CypherBuilderContext): MatchQuery[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _] = {
     pattern.foreach(context.nextLabel(_))
-    val query = new BuiltQuery(CypherKeywords.MATCH).appendSpaced(pattern.queryClause(context))
+    val query = new BuiltStatement(CypherKeywords.MATCH).appendSpaced(pattern.queryClause(context))
+    println("Match query: " + query)
     new MatchQuery[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, Any](
       pattern,
       query,

@@ -22,7 +22,7 @@ class AttributeReturnExpressionTest extends FlatSpec with Matchers {
     val node = new TestNode
     val context = new CypherBuilderContext
     context.register(node, "abc")
-    AttributeReturnExpression(node.name).query(context).queryString shouldEqual "abc.name"
+    AttributeReturnExpression(node.name).query(context).statement shouldEqual "abc.name"
   }
 
 
@@ -30,7 +30,7 @@ class AttributeReturnExpressionTest extends FlatSpec with Matchers {
     val node = new TestNode
     val context = new CypherBuilderContext
     context.register(node, "abc")
-    (node.name:AttributeReturnExpression[TestNode, TestNodeRecord, String]).query(context).queryString shouldEqual "abc.name"
+    (node.name:AttributeReturnExpression[TestNode, TestNodeRecord, String]).query(context).statement shouldEqual "abc.name"
   }
 
 }

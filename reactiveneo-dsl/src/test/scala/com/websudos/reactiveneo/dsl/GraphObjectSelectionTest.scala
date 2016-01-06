@@ -23,7 +23,7 @@ class GraphObjectSelectionTest extends FlatSpec with Matchers {
     val context = new CypherBuilderContext
     val node = new TestNode
     val label = context.nextLabel(node)
-    GraphObjectSelection(node).queryClause(context).queryString shouldEqual s"($label:TestNode)"
+    GraphObjectSelection(node).queryClause(context).statement shouldEqual s"($label:TestNode)"
   }
 
 
@@ -31,7 +31,7 @@ class GraphObjectSelectionTest extends FlatSpec with Matchers {
     val context = new CypherBuilderContext
     val owner = new TestNode
     val label = context.nextLabel(owner)
-    GraphObjectSelection(owner, Predicate(owner.name, "Tom")).queryClause(context).queryString shouldEqual s"""($label:TestNode {name:'Tom'})"""
+    GraphObjectSelection(owner, Predicate(owner.name, "Tom")).queryClause(context).statement shouldEqual s"""($label:TestNode {name:'Tom'})"""
   }
 }
 
