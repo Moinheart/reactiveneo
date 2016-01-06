@@ -46,7 +46,6 @@ private[reactiveneo] object MatchQuery {
     context: CypherBuilderContext): MatchQuery[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _] = {
     pattern.foreach(context.nextLabel(_))
     val query = new BuiltStatement(CypherKeywords.MATCH).appendSpaced(pattern.queryClause(context))
-    println("Match query: " + query)
     new MatchQuery[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, Any](
       pattern,
       query,

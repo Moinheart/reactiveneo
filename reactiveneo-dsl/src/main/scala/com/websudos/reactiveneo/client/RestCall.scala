@@ -17,7 +17,7 @@ package com.websudos.reactiveneo.client
 import java.util.concurrent.TimeUnit
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import com.websudos.reactiveneo.dsl.{CypherBuilder, MatchQuery}
+import com.websudos.reactiveneo.dsl.{MatchSet, CypherBuilder, MatchQuery}
 import org.jboss.netty.handler.codec.http.HttpMethod
 import play.api.libs.json.Reads
 
@@ -91,6 +91,12 @@ class RestConnection(config: ClientConfiguration) {
 
   implicit def makeRequest[RT](cypher: String)(implicit resultParser: Reads[RT]): RestCall[RT] = {
     val requestContent = neoStatement(cypher)
+    val call = RestCall(SingleTransaction, resultParser, requestContent)
+    call
+  }
+
+  implicit def makeRequest[RT](matchSet: MatchSet[_, _, _, _, _, _], resultParser: Reads[RT]): RestCall[RT] = {
+    val requestContent = neoStatement(matchSet.statement)
     val call = RestCall(SingleTransaction, resultParser, requestContent)
     call
   }

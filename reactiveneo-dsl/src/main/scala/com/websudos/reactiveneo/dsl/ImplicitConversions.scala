@@ -50,7 +50,7 @@ trait ImplicitConversions {
     * @tparam P Pattern type.
     * @return Returns set object.
     */
-  implicit def patternToSet[P <: Pattern](p: P): MatchSet[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _, _] = {
+  implicit def patternToSet[P <: Pattern](p: P): MatchSet[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _] = {
     MatchSet.createRootMatchSet(p, new CypherBuilderContext)
   }
 
@@ -79,7 +79,7 @@ trait ImplicitConversions {
   }
 
   implicit def selectionToSet[N <: Node[N,_]](sel: GraphObjectSelection[N]):
-  MatchSet[PatternLink[N,PNil], WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _, _] = {
+  MatchSet[PatternLink[N,PNil], WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _] = {
     val pattern = new PatternLink[N, PNil](Start, sel)
     val query = MatchSet.createRootMatchSet(pattern, new CypherBuilderContext)
     query

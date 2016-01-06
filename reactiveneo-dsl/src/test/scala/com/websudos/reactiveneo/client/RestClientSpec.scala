@@ -50,7 +50,24 @@ class RestClientSpec extends FeatureSpec with GivenWhenThen with Matchers
       }
 
     }
-      scenario("send a query and use a custom parser to get the result", RequiresNeo4jServer) {
+
+    scenario("send a simple MATCH set", RequiresNeo4jServer) {
+      Given("started Neo4j server")
+      implicit val service = RestConnection("localhost", 7474, "neo4j", "password")
+      val set = TestNode().set { case go ~~ _ => go.name := "Mo" }
+
+      When("REST call is executed")
+      val result = set.execute
+
+      Then("The result should be delivered")
+      whenReady(result) { res =>
+        res should not be empty
+        res.head.id shouldBe >(0)
+      }
+
+    }
+
+    scenario("send a query and use a custom parser to get the result", RequiresNeo4jServer) {
       Given("started Neo4j server")
       val service = RestConnection("localhost", 7474, "neo4j", "password")
       val query = "CREATE (n) RETURN id(n)"

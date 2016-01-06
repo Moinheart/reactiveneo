@@ -1,56 +1,56 @@
 package com.websudos.reactiveneo.dsl
 
+import com.websudos.reactiveneo.client.RestConnection
 import com.websudos.reactiveneo.query.{CypherKeywords, BuiltStatement}
+import play.api.libs.json._
 
+import scala.concurrent.Future
+
+import MatchSet._
 /**
   * Created by w00292111 on 2015/12/31.
   */
-class MatchSet [P <: Pattern, WB <: WhereBind, RB <: ReturnBind, OB <: OrderBind, LB <: LimitBind, S, RT](
+class MatchSet [P <: Pattern, WB <: WhereBind, RB <: ReturnBind, OB <: OrderBind, LB <: LimitBind, S](
                                                                                                            pattern: P,
                                                                                                            builtStatement: BuiltStatement,
                                                                                                            context: CypherBuilderContext,
-                                                                                                           ret: Option[ReturnExpression[RT]] = None) extends CypherBuilder(pattern, builtStatement, context, ret) {
+                                                                                                           ret: Option[ReturnExpression[DefaultResult]] = None) extends CypherBuilder(pattern, builtStatement, context, ret) {
 
   def statement: String = builtStatement.statement
 
-  final def set[US](s: P => SetExpression[US]): MatchSet[P, WB, ReturnBound, OB, LB, US, RT] = {
-    new MatchSet[P, WB, ReturnBound, OB, LB, US, RT](
+  final def set[US](s: P => SetExpression[US]): MatchSet[P, WB, ReturnBound, OB, LB, US] = {
+    new MatchSet[P, WB, ReturnBound, OB, LB, US](
       pattern,
-      builtStatement.appendSpaced(CypherKeywords.SET).appendSpaced(s(pattern).set(context)),
+      builtStatement.appendSpaced(CypherKeywords.SET).appendSpaced(s(pattern).set(context))
+        .appendSpaced(CypherKeywords.RETURN).appendSpaced("id(a)"),
       context,
       ret
     )
   }
 
-/*  final def set[US, GO <: GraphObject[GO, _]](goSelection: GraphObjectSelection[GO])
-                                               (implicit m: Manifest[GO]): MatchSet[P, WB, ReturnBound, OB, LB, US, RT] = {
-    val obj = m.runtimeClass.newInstance().asInstanceOf[GO]
-    new MatchSet[P, WB, ReturnBound, OB, LB, US, RT](
-      pattern,
-      builtStatement.appendSpaced(CypherKeywords.SET).appendSpaced(goSelection.setClauseString(context)),
-      context,
-      ret
-    )
-  }*/
-
-/*  @inline
-  private def predicatesSet(predicates: Predicate[_]*): Option[BuiltStatement] = {
-    if(predicates.nonEmpty) {
-      Some(predicates.tail.foldLeft(predicates.head.equalClause)((agg, next) => agg.append(",").append(next.equalClause)))
-    } else {
-      None
-    }
-  }*/
+  /**
+    * Execute the request against provided REST endpoint
+    * @param connection REST endpoint calling service.
+    * @return Asynchronous response
+    */
+  override def execute(implicit connection: RestConnection): Future[Seq[DefaultResult]] = {
+    connection.makeRequest[DefaultResult](this, parser).execute
+  }
 }
 
 private[reactiveneo] object MatchSet {
 
+  case class DefaultResult(id: Int)
+  implicit val parser: Reads[DefaultResult] = __.read[Int].map { arr =>
+    DefaultResult(arr)
+  }
+
   def createRootMatchSet[P <: Pattern](
      pattern: P,
-     context: CypherBuilderContext): MatchSet[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _, _] = {
+     context: CypherBuilderContext): MatchSet[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _] = {
     pattern.foreach(context.nextLabel(_))
     val query = new BuiltStatement(CypherKeywords.MATCH).appendSpaced(pattern.queryClause(context))
-    new MatchSet[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, Any, Any](
+    new MatchSet[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, Any](
       pattern,
       query,
       context)

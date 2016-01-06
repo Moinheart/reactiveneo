@@ -22,7 +22,7 @@ class MatchSetTest extends FlatSpec with Matchers {
 
   it should "build a simple set with a predicate" in {
     TestNode(_.name := "Tom").set { case n ~~ _ => n.name := "Tooom" }.statement shouldEqual
-      "MATCH (a:TestNode {name:'Tom'})   SET a.name='Tooom' "
+      "MATCH (a:TestNode {name:'Tom'})   SET a.name='Tooom' RETURN id(a) "
   }
   /*
     it should "build a simple query with a predicate" in {

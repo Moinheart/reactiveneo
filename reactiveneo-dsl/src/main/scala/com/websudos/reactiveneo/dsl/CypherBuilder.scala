@@ -56,7 +56,7 @@ private[reactiveneo] abstract class LimitUnbound extends LimitBind
  */
 private[reactiveneo] class CypherBuilder[P <: Pattern, WB <: WhereBind, RB <: ReturnBind, OB <: OrderBind, LB <: LimitBind, RT](
                                                                                                                                  pattern: P,
-                                                                                                                                 builtQuery: BuiltStatement,
+                                                                                                                                 builtStatement: BuiltStatement,
                                                                                                                                  context: CypherBuilderContext,
                                                                                                                                  ret: Option[ReturnExpression[RT]] = None) {
 
@@ -69,7 +69,7 @@ private[reactiveneo] class CypherBuilder[P <: Pattern, WB <: WhereBind, RB <: Re
   final def where(condition: P => Criteria[_])(implicit ev: WB =:= WhereUnbound): CypherBuilder[P, WhereBound, RB, OB, LB, _] = {
     new CypherBuilder[P, WhereBound, RB, OB, LB, Any](
       pattern,
-      where(builtQuery, condition(pattern).clause),
+      where(builtStatement, condition(pattern).clause),
       context)
   }
 
@@ -78,7 +78,7 @@ private[reactiveneo] class CypherBuilder[P <: Pattern, WB <: WhereBind, RB <: Re
     */
   @implicitNotFound("You need to add return clause to capture the type of result")
   final def finalCypher: (String, ReturnExpression[RT]) = {
-    (builtQuery.statement, ret.get)
+    (builtStatement.statement, ret.get)
   }
 
   /**
