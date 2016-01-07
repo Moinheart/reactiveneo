@@ -7,9 +7,7 @@ import play.api.libs.json._
 import scala.concurrent.Future
 
 import MatchSet._
-/**
-  * Created by w00292111 on 2015/12/31.
-  */
+
 class MatchSet [P <: Pattern, WB <: WhereBind, RB <: ReturnBind, OB <: OrderBind, LB <: LimitBind, S](
                                                                                                            pattern: P,
                                                                                                            builtStatement: BuiltStatement,

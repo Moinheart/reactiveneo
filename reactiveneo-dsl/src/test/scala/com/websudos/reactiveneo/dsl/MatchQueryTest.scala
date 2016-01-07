@@ -41,8 +41,12 @@ class MatchQueryTest extends FlatSpec with Matchers {
 
 
   it should "build a complex pattern query with a predicate using conversion" in {
-    (TestNode( _.name := "Tom" ) :->: TestRelationship() :<-: TestNode()) .returns { case go ~~ _ => go}.statement shouldEqual
+    (TestNode() :->: TestRelationship() :<-: TestNode( _.name := "Tom" )) .returns { case go ~~ _ => go}.statement shouldEqual
       "MATCH (a:TestNode {name:'Tom'}) -> [b:TestRelationship] <- (c:TestNode)   RETURN a "
   }
 
+/*  it should "build a complex pattern query with a predicate using conversion" in {
+    (TestNode() :->: TestNode() :-: TestNode()) .returns { case p1 ~~ _ => p1}.statement shouldEqual
+      "MATCH (a:TestNode {name:'Tom'}) -> [b:TestRelationship] <- (c:TestNode)   RETURN a "
+  }*/
 }

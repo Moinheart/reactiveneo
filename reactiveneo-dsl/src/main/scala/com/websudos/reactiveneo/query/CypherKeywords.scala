@@ -27,6 +27,8 @@ object CypherKeywords {
 
   val SET: String = "SET"
 
+  val DELETE: String = "DELETE"
+
 }
 
 object CypherOperators {

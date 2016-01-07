@@ -55,6 +55,19 @@ trait ImplicitConversions {
   }
 
   /**
+    * Conversion that simplifies set building. It allows to build the delete directly from a pattern.
+    * ```
+    * PersonNode(p=>p.name := "Mark").delete(p=>p)
+    * ```
+    * @param p Predicate that forms initial node for the query
+    * @tparam P Pattern type.
+    * @return Returns delete object.
+    */
+  implicit def patternToDelete[P <: Pattern](p: P): MatchDelete[P, WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _] = {
+    MatchDelete.createRootMatchDelete(p, new CypherBuilderContext)
+  }
+
+  /**
    * Convert single node selection to the [[com.websudos.reactiveneo.dsl.Pattern]] object
    * @param sel Graph node selection
    * @tparam N Type of node
@@ -81,8 +94,15 @@ trait ImplicitConversions {
   implicit def selectionToSet[N <: Node[N,_]](sel: GraphObjectSelection[N]):
   MatchSet[PatternLink[N,PNil], WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _] = {
     val pattern = new PatternLink[N, PNil](Start, sel)
-    val query = MatchSet.createRootMatchSet(pattern, new CypherBuilderContext)
-    query
+    val set = MatchSet.createRootMatchSet(pattern, new CypherBuilderContext)
+    set
+  }
+
+  implicit def selectionToDelete[N <: Node[N,_]](sel: GraphObjectSelection[N]):
+  MatchDelete[PatternLink[N,PNil], WhereUnbound, ReturnUnbound, OrderUnbound, LimitUnbound, _] = {
+    val pattern = new PatternLink[N, PNil](Start, sel)
+    val delete = MatchDelete.createRootMatchDelete(pattern, new CypherBuilderContext)
+    delete
   }
 
 }

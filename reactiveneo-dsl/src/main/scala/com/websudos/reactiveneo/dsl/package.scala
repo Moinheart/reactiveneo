@@ -18,6 +18,7 @@ package object dsl
   extends DefaultImports
   with SetImplicits
   with ReturnImplicits
+  with DeleteImplicits
   with ImplicitConversions
   with PredicateOps
 

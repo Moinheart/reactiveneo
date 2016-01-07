@@ -67,6 +67,22 @@ class RestClientSpec extends FeatureSpec with GivenWhenThen with Matchers
 
     }
 
+    scenario("send a simple MATCH delete", RequiresNeo4jServer) {
+      Given("started Neo4j server")
+      implicit val service = RestConnection("localhost", 7474, "neo4j", "password")
+      val delete = TestNode(_.name := "Mo").delete { case go ~~ _ => go }
+
+      When("REST call is executed")
+      val result = delete.execute
+
+      Then("The result should be delivered")
+      whenReady(result) { res =>
+        res should not be empty
+        res.head.id shouldBe >(0)
+      }
+
+    }
+
     scenario("send a query and use a custom parser to get the result", RequiresNeo4jServer) {
       Given("started Neo4j server")
       val service = RestConnection("localhost", 7474, "neo4j", "password")
